@@ -1,0 +1,53 @@
+# 中国单手数字手势识别全局配置（方案 A：关键点几何特征 + 轻量残差分类器）
+
+project:
+  name: "chinese-hand-digit"
+  seed: 42
+
+classes:
+  0: "0"
+  1: "1"
+  2: "2"
+  3: "3"
+  4: "4"
+  5: "5"
+  6: "6"
+  7: "7"
+  8: "8"
+  9: "9"
+  10: "Other"  # 非数字日常手势（主要来自 OpenAoE-2000h 负样本）
+
+paths:
+  data_dir: "data/processed"
+  checkpoint_dir: "checkpoints"
+  best_model_pt: "checkpoints/best_model.pt"
+  onnx_model: "checkpoints/hand_digit_cls.onnx"
+
+features:
+  num_landmarks: 21
+  input_dim: 88  # 63(归一化xyz) + 14(关节与指间夹角) + 9(指尖距离) + 2(左右手与朝向)
+
+model:
+  hidden_dims: [256, 256, 128]
+  dropout: 0.25
+  num_classes: 11
+
+train:
+  epochs: 80
+  batch_size: 256
+  lr: 0.001
+  weight_decay: 0.01
+  val_ratio: 0.15
+  test_ratio: 0.10
+  num_workers: 4
+  use_amp: true
+  label_smoothing: 0.05
+  early_stop_patience: 15
+
+inference:
+  confidence_threshold: 0.75
+  smooth_window: 7        # 滑动窗口帧数
+  min_consensus: 5        # 窗口内至少 5 帧一致才触发更新
+  max_num_hands: 1
+  min_detection_confidence: 0.6
+  min_tracking_confidence: 0.5
